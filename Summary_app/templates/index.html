@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résumé Automatique</title>
+</head>
+<body>
+    <h1>Générateur de Résumé Automatique</h1>
+    
+    <!-- Formulaire pour soumettre un texte ou un fichier -->
+    <form id="summary-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="text">Entrez le texte à résumer :</label><br>
+        <textarea id="text" name="text" rows="4" cols="50"></textarea><br><br>
+        
+        <label for="file">Ou téléchargez un fichier :</label><br>
+        <input type="file" id="file" name="file"><br><br>
+        
+        <button type="submit">Générer Résumé</button>
+    </form>
+    
+    <!-- Zone pour afficher le résumé -->
+    <h2>Résumé :</h2>
+    <p id="summary-result"></p>
+
+    <script>
+        // Fonction pour envoyer le formulaire via AJAX et afficher le résultat
+        document.getElementById('summary-form').addEventListener('submit', function(event) {
+            event.preventDefault();  // Empêche la soumission classique du formulaire
+            
+            let formData = new FormData(this);
+            
+            fetch("{% url 'summarize' %}", {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.summary) {
+                    document.getElementById('summary-result').innerText = data.summary;
+                } else {
+                    document.getElementById('summary-result').innerText = "Erreur lors de la génération du résumé.";
+                }
+            })
+            .catch(error => {
+                document.getElementById('summary-result').innerText = "Erreur de connexion.";
+            });
+        });
+    </script>
+</body>
+</html>
